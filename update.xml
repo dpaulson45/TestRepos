@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<sharpUpdate>
+	<update appId="Tools">
+		<version>1.0.0.2</version>
+		<url>http://computername/tools/Setup-Prod.msi</url>
+		<fileName>setup.msi</fileName>
+		<md5>GUID</md5>
+		<description>Prod Release</description>
+		<launchArgs></launchArgs>
+	</update>
+</sharpUpdate>
