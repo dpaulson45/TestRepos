@@ -4,7 +4,14 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  branches:
+    - master
+  paths:
+    include:
+      - "*"
+    exclude:
+      - README.md
+      - azure-pipelines.yml
 
 pool:
   vmImage: 'ubuntu-latest'
