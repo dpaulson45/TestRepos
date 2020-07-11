@@ -32,7 +32,7 @@ steps:
 
 - powershell: echo $env:MYSECRET
   env:
-    MySecret: $(Foo)
+    MySecret: $env:Foo
 
 - powershell: Get-Content .\Build\ReleaseNotes.md
   displayName: "Getting content"
