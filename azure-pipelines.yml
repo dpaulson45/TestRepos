@@ -11,11 +11,11 @@ trigger:
     include:
       - '*'
     exclude:
-      - '/README.md'
+      - 'README.md'
 
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-2019'
 
 steps:
 - script: dir
@@ -33,5 +33,7 @@ steps:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: edit
-    tag: $(draftReleaseTag)
-    assets: '/Test-Script/TestScript.ps1'
+    tag: v1.0.4
+    assets: |
+      TestScript.ps1
+      \Test-Script\NewTestScript.ps1
