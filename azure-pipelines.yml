@@ -35,17 +35,5 @@ steps:
 - powershell: Get-Content .\Build\ReleaseNotes.md
   displayName: "Getting content"
 
-- task: GitHubRelease@0
-  pr: none
-  displayName: 'Edit GitHub Release'
-  inputs:
-    gitHubConnection: github.com_dpaulson45
-    repositoryName: dpaulson45/TestRepos
-    action: edit
-    tag: v1.0.5
-    releaseNotesSource: 'file'
-    releaseNotesFile: .\Build\ReleaseNotes.txt
-    addChangeLog: true
-    assets: |
-      .\Test-Script\TestScript.ps1
-      .\Test-Script\NewTestScript.ps1
+jobs:
+- template: .\Build\azure-pipeline-release.yml
