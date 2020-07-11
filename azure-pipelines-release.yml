@@ -21,7 +21,7 @@ steps:
     repositoryName: dpaulson45/TestRepos
     action: edit
     tag: v1.0.5
-    releaseNotesSource: 'intput'
+    releaseNotesSource: 'input'
     releaseNotes: "SHA256: $(TestScriptFileHash)"
     addChangeLog: true
     assets: |
