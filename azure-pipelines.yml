@@ -30,6 +30,10 @@ steps:
 - powershell: Test-Path ".\Test-Script\NewTestScript.ps1"
   displayName: "Find Script"
 
+- powershell: echo $env:MYSECRET
+  env:
+    MySecret: $(Foo)
+
 - powershell: Get-Content .\Build\ReleaseNotes.md
   displayName: "Getting content"
 
