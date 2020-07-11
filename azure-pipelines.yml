@@ -11,7 +11,7 @@ pool:
 
 steps:
 - task: Powershell@2
-inputs:
+  inputs:
   targetType: 'filePath'
   filePath: $(System.DefaultWorkingDirectory)\Build\Build.ps1
   displayName: 'Run a one-line script'
