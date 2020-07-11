@@ -9,8 +9,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+steps:
 - task: Powershell@2
+  displayName: 'Run a one-line script'
     inputs:
       targetType: 'filePath'
       filePath: $(System.DefaultWorkingDirectory)\Build\Build.ps1
-      displayName: 'Run a one-line script'
