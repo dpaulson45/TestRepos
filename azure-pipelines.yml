@@ -37,6 +37,8 @@ steps:
     repositoryName: dpaulson45/TestRepos
     action: edit
     tag: v1.0.5
+    releaseNotesFile: .\Build\ReleaseNotes.txt
+    addChangeLog: true
     assets: |
       .\Test-Script\TestScript.ps1
       .\Test-Script\NewTestScript.ps1
