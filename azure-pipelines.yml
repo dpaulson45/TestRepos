@@ -30,7 +30,7 @@ steps:
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
   inputs:
-    gitHubConnection: dpaulson45
+    gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: edit
     tag: $(draftReleaseTag)
