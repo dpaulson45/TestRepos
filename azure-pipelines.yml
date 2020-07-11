@@ -45,7 +45,7 @@ steps:
     action: edit
     tag: v1.0.5
     releaseNotesSource: 'file'
-    releaseNotesFile: .\Build\ReleaseNotes.md
+    releaseNotesFile: .\Build\ReleaseNotes.txt
     addChangeLog: true
     assets: |
       .\Test-Script\TestScript.ps1
