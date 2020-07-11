@@ -16,6 +16,8 @@ pool:
 steps:
 - powershell: .\Build\Build.ps1
   displayName: "Build Script"
+  env:
+    Testing: $(TestScriptFileHash)
 
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
