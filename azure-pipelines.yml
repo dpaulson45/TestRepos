@@ -30,7 +30,7 @@ steps:
 - powershell: Test-Path ".\Test-Script\NewTestScript.ps1"
   displayName: "Find Script"
 
-- powershell: echo $env:MYSECRET
+- powershell: Write-Host $env:Foo; Write-Host $env:MySecret
   env:
     MySecret: $env:Foo
 
