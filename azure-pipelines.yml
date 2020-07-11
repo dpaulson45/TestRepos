@@ -35,5 +35,5 @@ steps:
     action: edit
     tag: v1.0.4
     assets: |
-      '\Test-Script\TestScript.ps1'
-      '\Test-Script\NewTestScript.ps1'
+      Test-Script\TestScript.ps1
+      \Test-Script\NewTestScript.ps1
