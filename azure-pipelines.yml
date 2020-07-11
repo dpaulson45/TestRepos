@@ -14,4 +14,4 @@ steps:
   displayName: 'Run a one-line script'
   inputs:
     targetType: 'filePath'
-    filePath: $(System.DefaultWorkingDirectory)\Build\Build.ps1
+    filePath: $(Build.SourcesDirectory)\Build\Build.ps1
