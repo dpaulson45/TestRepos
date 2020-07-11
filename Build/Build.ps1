@@ -9,4 +9,4 @@ if ($false)
 #>
 #Create Release Notes
 
-$env:Testing = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
+$env:TESTSCRIPTFILEHASH = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
