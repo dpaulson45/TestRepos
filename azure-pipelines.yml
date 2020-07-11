@@ -30,7 +30,7 @@ steps:
 - powershell: Test-Path ".\Test-Script\NewTestScript.ps1"
   displayName: "Find Script"
 
-- powershell: Get-Content .\Build\ReleaseNotes.txt
+- powershell: Get-Content .\Build\ReleaseNotes.md
   displayName: "Getting content"
 
 - task: GitHubRelease@0
@@ -40,8 +40,8 @@ steps:
     repositoryName: dpaulson45/TestRepos
     action: edit
     tag: v1.0.5
-    releaseNotesSource: 'input'
-    releaseNotesFile: .\Build\ReleaseNotes.txt
+    releaseNotesSource: 'file'
+    releaseNotesFile: .\Build\ReleaseNotes.md
     addChangeLog: true
     assets: |
       .\Test-Script\TestScript.ps1
