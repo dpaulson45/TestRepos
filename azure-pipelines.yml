@@ -18,9 +18,3 @@ steps:
 
 - powershell: .\Build\Build.ps1
   displayName: "Testing Script"
-
-- task: Powershell@2
-  displayName: 'Run a one-line script'
-  inputs:
-    targetType: 'filePath'
-    filePath: \Build\Build.ps1
