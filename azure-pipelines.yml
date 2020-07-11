@@ -30,6 +30,9 @@ steps:
 - powershell: Test-Path ".\Test-Script\NewTestScript.ps1"
   displayName: "Find Script"
 
+- powershell: Get-Content .\ReleaseNotes.txt
+  displayName: "Getting content"
+
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
   inputs:
