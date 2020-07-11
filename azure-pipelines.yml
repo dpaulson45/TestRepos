@@ -10,7 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: 'false'
+- script: ".\Build\Build.ps1"
   displayName: 'Run a one-line script'
 
 - script: |
