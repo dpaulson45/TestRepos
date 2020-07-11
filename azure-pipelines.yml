@@ -11,7 +11,7 @@ pool:
 
 steps:
 - download:
-- script: $false
+- script: 'false'
   displayName: 'Run a one-line script'
 
 - script: |
