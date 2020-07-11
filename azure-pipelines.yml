@@ -36,7 +36,7 @@ steps:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: edit
-    tag: v1.0.4
+    tag: v1.0.5
     assets: |
-      TestScript.ps1
+      .\Test-Script\TestScript.ps1
       .\Test-Script\NewTestScript.ps1
