@@ -9,7 +9,7 @@ trigger:
       - master
   paths:
     include:
-      - '.\Build\ReleaseNotes.txt'
+      - '*'
 
 
 pool:
@@ -36,6 +36,7 @@ steps:
   displayName: "Getting content"
 
 - task: GitHubRelease@0
+  pr: none
   displayName: 'Edit GitHub Release'
   inputs:
     gitHubConnection: github.com_dpaulson45
