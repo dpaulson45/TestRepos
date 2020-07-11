@@ -27,6 +27,9 @@ steps:
 - powershell: .\Build\Build.ps1
   displayName: "Testing Script"
 
+- powershell: Test-Path \Test-Script\NewTestScript.ps1
+  displayName: "Find Script"
+
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
   inputs:
