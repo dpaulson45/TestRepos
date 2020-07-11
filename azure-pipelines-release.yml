@@ -1,0 +1,29 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - master
+
+pr: none
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+- task: GitHubRelease@0
+  displayName: 'Edit GitHub Release'
+  inputs:
+    gitHubConnection: github.com_dpaulson45
+    repositoryName: dpaulson45/TestRepos
+    action: edit
+    tag: v1.0.5
+    releaseNotesSource: 'file'
+    releaseNotesFile: .\Build\ReleaseNotes.txt
+    addChangeLog: true
+    assets: |
+      .\Test-Script\TestScript.ps1
+      .\Test-Script\NewTestScript.ps1
