@@ -10,10 +10,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- powershell:
+- script: dir
   displayName: "Debug Help"
-  script: |
-    Get-ChildItem -Recurse $(Build.SourcesDirectory)
+
 - task: Powershell@2
   displayName: 'Run a one-line script'
   inputs:
