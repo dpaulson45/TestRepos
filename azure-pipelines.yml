@@ -26,3 +26,13 @@ steps:
 
 - powershell: .\Build\Build.ps1
   displayName: "Testing Script"
+
+- task: GitHubRelease@0
+  displayName: 'Edit GitHub Release'
+  inputs:
+    gitHubConnection: dpaulson45
+  repositoryName: dpaulson45/TestRepos
+  action: edit
+  tag: $(draftReleaseTag)
+  assets:
+    '/Test-Script/TestScript.ps1'
