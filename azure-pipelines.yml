@@ -9,9 +9,7 @@ trigger:
       - master
   paths:
     include:
-      - '*'
-    exclude:
-      - 'README.md'
+      - '.\Build\ReleaseNotes.txt'
 
 
 pool:
