@@ -10,7 +10,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- download:
 - script: 'false'
   displayName: 'Run a one-line script'
 
