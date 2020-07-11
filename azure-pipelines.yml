@@ -10,7 +10,9 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: ".\Build\Build.ps1"
+- task: Powershell@2
+  intput: 
+    filepath: Build\Build.ps1
   displayName: 'Run a one-line script'
 
 - script: |
