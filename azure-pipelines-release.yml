@@ -45,6 +45,7 @@ jobs:
 
 
 - job: "Release_To_GitHub"
+  dependsOn: "PreRelease"
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   steps:
   - task: GitHubRelease@0
