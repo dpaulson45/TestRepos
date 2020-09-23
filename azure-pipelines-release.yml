@@ -43,9 +43,13 @@ jobs:
 
     displayName: "testing tag value"
 
+trigger:
+    branches:
+    include:
+      - master
 pr: none
 - job: "Release to GitHub"
-
+  
   steps:
   - task: GitHubRelease@0
     displayName: 'Create GitHub Release'
