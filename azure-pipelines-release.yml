@@ -22,13 +22,21 @@ steps:
 
   displayName: "Setting file hash"
 
+- pwsh: | 
+
+    $tag = ".\Build\GetTag.ps1 https://api.github.com/repos/dpaulson45/TestRepos/releases"
+
+    Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
+  
+  displayName: "Setting Tag Value"
+
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
   inputs:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: edit
-    tag: v1.0.5
+    tag: $(ReleaseTagValue)
     releaseNotesSource: 'input'
     releaseNotes: "SHA256: $(ScriptFileHash)
     
