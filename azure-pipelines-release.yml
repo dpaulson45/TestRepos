@@ -11,51 +11,55 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
-steps: 
-- powershell: |
+jobs:
+- job: "Pre Release"
 
-    $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
+  steps: 
+  - powershell: |
 
-    Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
+      $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
 
-  displayName: "Setting file hash"
+      Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
 
-- pwsh: | 
+    displayName: "Setting file hash"
 
-    $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
-    $json = ConvertFrom-Json -InputObject $webRequest.Content
-    $tagString = $json[0].tag_name
-    Write-Host("Current tag: {0}" -f $tagString)
-    $split = $tagString.Split(".")
-    $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
-    Write-Host("New tag: {0}" -f $tag)
-    Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
-  
-  displayName: "Setting Tag Value"
+  - pwsh: | 
 
-- pwsh: | 
+      $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
+      $json = ConvertFrom-Json -InputObject $webRequest.Content
+      $tagString = $json[0].tag_name
+      Write-Host("Current tag: {0}" -f $tagString)
+      $split = $tagString.Split(".")
+      $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
+      Write-Host("New tag: {0}" -f $tag)
+      Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
 
-    $value = "$(ReleaseTagValue)"
-    Write-Host("Testing tag value: {0}" -f $value)
-  
-  displayName: "testing tag value"
+    displayName: "Setting Tag Value"
 
-pr: none 
+  - pwsh: | 
 
-steps:
-- task: GitHubRelease@0
-  displayName: 'Create GitHub Release'
-  inputs:
-    gitHubConnection: github.com_dpaulson45
-    repositoryName: dpaulson45/TestRepos
-    action: create
-    tagSource: manual
-    tag: $(ReleaseTagValue)
-    releaseNotesSource: 'input'
-    releaseNotes: "SHA256: $(ScriptFileHash)
-    
-    How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
-    addChangeLog: true
-    assets: |
-      .\Test-Script\TestScript.ps1
-      .\Test-Script\NewTestScript.ps1
+      $value = "$(ReleaseTagValue)"
+      Write-Host("Testing tag value: {0}" -f $value)
+
+    displayName: "testing tag value"
+
+- job: "Release to GitHub"
+  pr: none 
+
+  steps:
+  - task: GitHubRelease@0
+    displayName: 'Create GitHub Release'
+    inputs:
+      gitHubConnection: github.com_dpaulson45
+      repositoryName: dpaulson45/TestRepos
+      action: create
+      tagSource: manual
+      tag: $(ReleaseTagValue)
+      releaseNotesSource: 'input'
+      releaseNotes: "SHA256: $(ScriptFileHash)
+
+      How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
+      addChangeLog: true
+      assets: |
+        .\Test-Script\TestScript.ps1
+        .\Test-Script\NewTestScript.ps1
