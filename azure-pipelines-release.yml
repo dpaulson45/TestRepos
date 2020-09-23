@@ -34,7 +34,7 @@ steps:
   displayName: "Setting Tag Value"
 
 - pwsh: | 
-
+    
     Write-Host("Testing tag value: {0}" -f $(ReleaseTagValue))
   
   displayName: "testing tag value"
