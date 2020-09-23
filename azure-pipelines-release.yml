@@ -22,11 +22,23 @@ steps:
 
 - pwsh: | 
 
-    $tag = ".\Build\GetTag.ps1 https://api.github.com/repos/dpaulson45/TestRepos/releases"
-
+    $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
+    $json = ConvertFrom-Json -InputObject $webRequest.Content
+    $tagString = $json[0].tag_name
+    Write-Host("Current tag: {0}" -f $tagString)
+    $split = $tagString.Split(".")
+    $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
+    Write-Host("New tag: {0}" -f $tag)
     Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
   
   displayName: "Setting Tag Value"
+
+- pwsh: | 
+
+    $value = "$(ReleaseTagValue)"
+    Write-Host("Testing tag value: {0}" -f $value)
+  
+  displayName: "testing tag value"
 
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
