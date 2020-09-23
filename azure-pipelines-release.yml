@@ -24,10 +24,10 @@ steps:
 - powershell: |
 
     $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
-  
+
     Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
 
-  displayname: "Setting file hash"
+  displayName: "Setting file hash"
 
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
