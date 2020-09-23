@@ -16,10 +16,12 @@ pool:
 steps:
 - pswh: |
 
-$hash = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
+  $hash = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
 
-"Hash: $hash"
-Write-Host "##vso[task.setvariable variable=ScriptFileHash]$hash"
+  "Hash: $hash"
+  Write-Host "##vso[task.setvariable variable=ScriptFileHash]$hash"
+
+  displayname: "Setting file hash"
 
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
