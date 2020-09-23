@@ -40,6 +40,8 @@ steps:
   
   displayName: "testing tag value"
 
+pr: none 
+
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
   inputs:
