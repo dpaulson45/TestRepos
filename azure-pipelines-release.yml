@@ -13,6 +13,7 @@ pr: none
 pool:
   vmImage: 'windows-2019'
 
+-steps: 
 - powershell: |
 
     $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
