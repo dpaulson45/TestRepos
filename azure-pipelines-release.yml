@@ -43,13 +43,9 @@ jobs:
 
     displayName: "testing tag value"
 
-trigger:
-    branches:
-    include:
-      - master
-pr: none
+
 - job: "Release to GitHub"
-  
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   steps:
   - task: GitHubRelease@0
     displayName: 'Create GitHub Release'
