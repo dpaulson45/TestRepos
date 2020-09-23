@@ -42,6 +42,7 @@ steps:
 
 pr: none 
 
+steps:
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
   inputs:
