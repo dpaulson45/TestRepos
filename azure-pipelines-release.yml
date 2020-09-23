@@ -43,8 +43,8 @@ jobs:
 
     displayName: "testing tag value"
 
+pr: none
 - job: "Release to GitHub"
-  pr: none 
 
   steps:
   - task: GitHubRelease@0
