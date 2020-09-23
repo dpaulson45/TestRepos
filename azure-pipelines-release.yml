@@ -14,6 +14,13 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
+- task: DotNetCoreCLI@2
+  displayName: Test
+  inputs:
+    command: test
+    projects: '$(Parameters.TestProjects)'
+    arguments: '--configuration $(BuildConfiguration)'
+
 - powershell: |
 
   $hash = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
