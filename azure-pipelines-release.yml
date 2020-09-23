@@ -11,57 +11,48 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
-jobs:
-- job: "PreRelease"
+steps: 
+- powershell: |
+    $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
+    Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
 
-  steps: 
-  - powershell: |
+  displayName: "Setting file hash"
 
-      $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
+- pwsh: | 
+    $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
+    $json = ConvertFrom-Json -InputObject $webRequest.Content
+    $tagString = $json[0].tag_name
+    Write-Host("Current tag: {0}" -f $tagString)
+    $split = $tagString.Split(".")
+    $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
+    Write-Host("New tag: {0}" -f $tag)
+    Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
 
-      Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
+  displayName: "Setting Tag Value"
 
-    displayName: "Setting file hash"
+- pwsh: | 
 
-  - pwsh: | 
+    $value = "$(ReleaseTagValue)"
+    Write-Host("Testing tag value: {0}" -f $value)
 
-      $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
-      $json = ConvertFrom-Json -InputObject $webRequest.Content
-      $tagString = $json[0].tag_name
-      Write-Host("Current tag: {0}" -f $tagString)
-      $split = $tagString.Split(".")
-      $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
-      Write-Host("New tag: {0}" -f $tag)
-      Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
-
-    displayName: "Setting Tag Value"
-
-  - pwsh: | 
-
-      $value = "$(ReleaseTagValue)"
-      Write-Host("Testing tag value: {0}" -f $value)
-
-    displayName: "testing tag value"
+  displayName: "testing tag value"
 
 
-- job: "Release_To_GitHub"
-  dependsOn: "PreRelease"
+- task: GitHubRelease@0
+  displayName: 'Create GitHub Release'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-  steps:
-  - task: GitHubRelease@0
-    displayName: 'Create GitHub Release'
-    inputs:
-      gitHubConnection: github.com_dpaulson45
-      repositoryName: dpaulson45/TestRepos
-      action: create
-      tagSource: manual
-      tagPattern: 'v[0-9].[0-9].[0-9]'
-      tag: $(ReleaseTagValue)
-      releaseNotesSource: 'input'
-      releaseNotes: "SHA256: $(ScriptFileHash)
+  inputs:
+    gitHubConnection: github.com_dpaulson45
+    repositoryName: dpaulson45/TestRepos
+    action: create
+    tagSource: manual
+    tagPattern: 'v[0-9].[0-9].[0-9]'
+    tag: $(ReleaseTagValue)
+    releaseNotesSource: 'input'
+    releaseNotes: "SHA256: $(ScriptFileHash)
 
-      How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
-      addChangeLog: true
-      assets: |
-        .\Test-Script\TestScript.ps1
-        .\Test-Script\NewTestScript.ps1
+    How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
+    addChangeLog: true
+    assets: |
+      .\Test-Script\TestScript.ps1
+      .\Test-Script\NewTestScript.ps1
