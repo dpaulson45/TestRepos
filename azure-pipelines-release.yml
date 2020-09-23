@@ -14,10 +14,12 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
-- pwsh: .\Build\Build.ps1
-  displayName: "Build Script"
-  env:
-    Testing: $(TestScriptFileHash)
+- pswh: |
+
+$hash = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
+
+"Hash: $hash"
+Write-Host "##vso[task.setvariable variable=ScriptFileHash]$hash"
 
 - task: GitHubRelease@0
   displayName: 'Edit GitHub Release'
@@ -27,7 +29,7 @@ steps:
     action: edit
     tag: v1.0.5
     releaseNotesSource: 'input'
-    releaseNotes: "SHA256: $(TestScriptFileHash)
+    releaseNotes: "SHA256: $(ScriptFileHash)
     
     How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
     addChangeLog: true
