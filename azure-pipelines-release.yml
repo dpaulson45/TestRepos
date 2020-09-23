@@ -12,7 +12,7 @@ pool:
   vmImage: 'windows-2019'
 
 jobs:
-- job: "Pre Release"
+- job: "PreRelease"
 
   steps: 
   - powershell: |
@@ -44,7 +44,7 @@ jobs:
     displayName: "testing tag value"
 
 
-- job: "Release to GitHub"
+- job: "Release_To_GitHub"
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   steps:
   - task: GitHubRelease@0
@@ -57,7 +57,7 @@ jobs:
       tag: $(ReleaseTagValue)
       releaseNotesSource: 'input'
       releaseNotes: "SHA256: $(ScriptFileHash)
-      
+
       How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
       addChangeLog: true
       assets: |
