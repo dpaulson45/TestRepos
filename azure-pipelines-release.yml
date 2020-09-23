@@ -35,7 +35,8 @@ steps:
 
 - pwsh: | 
     
-    Write-Host("Testing tag value: {0}" -f $(ReleaseTagValue))
+    $value = $(ReleaseTagValue)
+    Write-Host("Testing tag value: {0}" -f $value)
   
   displayName: "testing tag value"
 
