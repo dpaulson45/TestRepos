@@ -19,18 +19,18 @@ steps:
 - script: dir
   displayName: "Debug Help"
 
-- powershell: Get-ChildItem -Recurse
+- pwsh: Get-ChildItem -Recurse
   displayName: "Powershell get items"
 
-- powershell: .\Build\Build.ps1
+- pwsh: .\Build\Build.ps1
   displayName: "Testing Script"
 
-- powershell: Test-Path ".\Test-Script\NewTestScript.ps1"
+- pwsh: Test-Path ".\Test-Script\NewTestScript.ps1"
   displayName: "Find Script"
 
-- powershell: Write-Host $env:Foo; Write-Host $env:MySecret
+- pwsh: Write-Host $env:Foo; Write-Host $env:MySecret
   env:
     MySecret: $env:Foo
 
-- powershell: Get-Content .\Build\ReleaseNotes.md
+- pwsh: Get-Content .\Build\ReleaseNotes.md
   displayName: "Getting content"

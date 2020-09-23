@@ -14,7 +14,7 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
-- powershell: .\Build\Build.ps1
+- pwsh: .\Build\Build.ps1
   displayName: "Build Script"
   env:
     Testing: $(TestScriptFileHash)
