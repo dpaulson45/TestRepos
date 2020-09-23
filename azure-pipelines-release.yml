@@ -57,7 +57,7 @@ jobs:
       tag: $(ReleaseTagValue)
       releaseNotesSource: 'input'
       releaseNotes: "SHA256: $(ScriptFileHash)
-
+      
       How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
       addChangeLog: true
       assets: |
