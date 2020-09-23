@@ -46,7 +46,7 @@ steps:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: create
-    tag: $(ReleaseTagValue)
+    tag: "$(ReleaseTagValue)"
     releaseNotesSource: 'input'
     releaseNotes: "SHA256: $(ScriptFileHash)
     
