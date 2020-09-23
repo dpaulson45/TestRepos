@@ -12,3 +12,5 @@ if ($false)
 $env:TESTSCRIPTFILEHASH = (Get-FileHash -Algorithm SHA256 ".\Test-Script\TestScript.ps1").Hash
 
 Write-Host $env:TESTSCRIPTFILEHASH
+
+return $env:TESTSCRIPTFILEHASH
