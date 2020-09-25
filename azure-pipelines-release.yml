@@ -40,7 +40,7 @@ steps:
 
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
   inputs:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
