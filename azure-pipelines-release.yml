@@ -58,7 +58,7 @@ steps:
     tag: $(ReleaseTagValue)
     title: $(ReleaseTitleValue)
     releaseNotesSource: 'input'
-    releaseNotes: "SHA256: $(ScriptFileHash)
+    releaseNotes: "SHA256: $(ScriptFileHash) <br>
 
     How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
     addChangeLog: true
