@@ -1,0 +1,71 @@
+Function New-MDBFailureItemTagMonitor {
+[CmdletBinding()]
+param(
+[Parameter(Mandatory=$false)]$TagID = 38,
+[Parameter(Mandatory=$false)]$MonitorOnlyDBs,
+[Parameter(Mandatory=$false)][scriptblock]$HostFunctionCaller,
+[Parameter(Mandatory=$false)][scriptblock]$VerboseFunctionCaller
+)
+
+#Function Version 1.0
+#[System.Collections.Generic.List[System.Object]]$list = New-Object -TypeName System.Collections.Generic.List[System.Object]
+
+########################
+#
+# Write Functions 
+#
+########################
+
+Function Write-VerboseWriter {
+param(
+[Parameter(Mandatory=$true)][string]$WriteString 
+)
+    if($this.VerboseFunctionCaller -eq $null -and $this.WriteVerboseData)
+    {
+        Write-Host $WriteString -ForegroundColor Cyan
+    }
+    elseif($this.WriteVerboseData)
+    {
+        $this.VerboseFunctionCaller($WriteString)
+    }
+}
+    
+Function Write-HostWriter {
+param(
+[Parameter(Mandatory=$true)][string]$WriteString 
+)
+    if($this.HostFunctionCaller -eq $null)
+    {
+        Write-Host $WriteString
+    }
+    else
+    {
+        $this.HostFunctionCaller($WriteString)
+    }
+}
+
+########################
+#
+# Template Functions
+#
+########################
+
+
+########################
+#
+# End Template Functions
+#
+########################
+
+
+########## Parameter Binding Exceptions ##############
+# throw [System.Management.Automation.ParameterBindingException] "Failed to provide valid ParameterName" 
+if($TagID -lt 0)
+{
+    throw [System.Management.Automation.ParameterBindingException] "Failed to provide valid TagID. Needs to be greater than 0." 
+}
+
+$failureItemTagMonitor = New-Object pscustomobject
+$failureItemTagMonitor | Add-Member NoteProperty -Name "TagID" -Value $TagID 
+
+}
