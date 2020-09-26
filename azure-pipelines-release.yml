@@ -40,7 +40,7 @@ steps:
 
     foreach($key in $assets.Keys)
     {
-      $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
+      $releaseNotes += ($value = "Script: {0} SHA256: {1}\r\n" -f $key, $assets[$key].Hash)
       Write-Host("$value")
       $filepath = $assets[$key].FileName
       Write-Host("$filepath")
@@ -48,6 +48,8 @@ steps:
     }
     Write-Host("Release Notes:")
     Write-Host("$releaseNotes")
+    Write-Host("Asset Files")
+    Write-Host("$assetFiles")
     Write-Host "##vso[task.setvariable variable=Assets]$assetFiles"
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
   displayName: "Setting Release Notes and Assets"
