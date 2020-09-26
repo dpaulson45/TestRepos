@@ -12,13 +12,6 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
-steps: 
-- pwsh: | 
-    $assets = .\Build\BuildScript.ps1 
-    Write-Host "##vso[task.setvariable variable=AssetInfo]$assets"
-
-  displayName: "Getting Assets"
-
 - pwsh: | 
     $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
     $json = ConvertFrom-Json -InputObject $webRequest.Content
@@ -40,16 +33,21 @@ steps:
 
 - pwsh: |
     $releaseNotes = @()
-    [hashtable]$assets = $[AssetInfo]
+    $assets = .\Build\BuildScript.ps1 
+
+    $assetFiles = @()
 
     foreach($key in $assets.Keys)
     {
       $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
       Write-Host $value
+      $filepath = $assets[$key].FileName
+      Write-Host($filepath)
+      $assetFiles += $filepath
     }
     Write-Host($releaseNotes)
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
-  displayName: "Setting Release Notes"
+  displayName: "Setting Release Notes and Assets"
 
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
