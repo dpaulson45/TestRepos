@@ -12,6 +12,7 @@ trigger:
 pool:
   vmImage: 'windows-2019'
 
+-steps:
 - pwsh: | 
     $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
     $json = ConvertFrom-Json -InputObject $webRequest.Content
