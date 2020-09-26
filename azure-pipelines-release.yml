@@ -81,4 +81,4 @@ steps:
     releaseNotesSource: 'file'
     releaseNotesFile: .\Build\ReleaseNotes.txt
     addChangeLog: true
-    assets: $(Build.ArtifactStagingDirectory)
+    assets: $(Build.ArtifactStagingDirectory)\*
