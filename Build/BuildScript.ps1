@@ -1,5 +1,5 @@
 $excludeList = @("Update-FunctionToScript.ps1","Test-Script.ps1","New-FunctionTemplate.ps1")
-$assets = Get-ChildItem ..\Scripts -Recurse | ?{($_.Name.ToString().EndsWith(".ps1") -or $_.Name.ToString().EndsWith(".config")) -and (!$excludeList.Contains($_.Name.ToString()))}
+$assets = Get-ChildItem .\Scripts -Recurse | ?{($_.Name.ToString().EndsWith(".ps1") -or $_.Name.ToString().EndsWith(".config")) -and (!$excludeList.Contains($_.Name.ToString()))}
 
 $returnHash = @{}
 foreach($file in $assets)
@@ -10,8 +10,6 @@ foreach($file in $assets)
     $obj | Add-Member -MemberType NoteProperty -Name "Hash" -Value $hashValue
 
     $returnHash.Add($file.Name, $obj)
-
-    Write-Host("FileName: {0} Hash: {1}" -f $obj.FileName, $obj.Hash)
 }
 
 return $returnHash
