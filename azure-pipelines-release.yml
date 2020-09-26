@@ -40,7 +40,7 @@ steps:
 
 - pwsh: |
     $releaseNotes = @()
-    $assets = $(AssetInfo)
+    $assets = "$(AssetInfo)"
 
     foreach($key in $assets.Keys)
     {
