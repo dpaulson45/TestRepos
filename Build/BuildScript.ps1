@@ -10,6 +10,8 @@ foreach($file in $assets)
     $obj | Add-Member -MemberType NoteProperty -Name "Hash" -Value $hashValue
 
     $returnHash.Add($file.Name, $obj)
+
+    Write-Host("FileName: {0} Hash: {1}" -f $obj.FileName, $obj.Hash)
 }
 
 return $returnHash
