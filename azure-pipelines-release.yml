@@ -38,11 +38,11 @@ steps:
 
     $assetFiles = @()
 
-    Write-Host "Test"
+    Write-Host("Test")
 
     foreach($key in $assets.Keys)
     {
-      Write-Host "Test in loop"
+      Write-Host("Test in loop")
       $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
       Write-Host("$value")
       $filepath = $assets[$key].FileName
