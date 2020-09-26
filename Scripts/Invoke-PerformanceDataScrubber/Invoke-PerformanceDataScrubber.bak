@@ -1,0 +1,39 @@
+[CmdletBinding()]
+param(
+[Parameter(Mandatory=$true)][string]$SourcePerformanceFile,
+[Parameter(Mandatory=$false)][string]$SaveToLocation,
+[Parameter(Mandatory=$false)][string]$StoredHashedNameFile
+)
+
+#Function Version 1.0
+
+########################
+#
+# Template Functions
+#
+########################
+
+
+########################
+#
+# End Template Functions
+#
+########################
+
+
+########## Parameter Binding Exceptions ##############
+# throw [System.Management.Automation.ParameterBindingException] "Failed to provide valid ParameterName" 
+
+Function Convert-BLGFileToCSV {
+param(
+[Parameter(Mandatory=$true)][string]$FullFilePath
+)
+    $parentDirectory = Split-Path -Parent $FullFilePath 
+    $fileName = (Split-Path -Leaf $FullFilePath).Replace(".blg","")
+    $exportTo = "{0}\{1}_TempData.csv" -f $parentDirectory, $fileName
+    [System.Diagnostics.Stopwatch]$stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    relog $FullFilePath -f csv -o $exportTo 
+    $stopWatch.Stop()
+
+}
