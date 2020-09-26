@@ -40,11 +40,12 @@ steps:
 
 - pwsh: |
     $releaseNotes = @()
-    $assets = "$(AssetInfo)"
+    [hashtable]$assets = $(AssetInfo)
 
     foreach($key in $assets.Keys)
     {
-      $releaseNotes += "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash
+      $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
+      Write-Host $value
     }
     Write-Host($releaseNotes)
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
