@@ -42,7 +42,7 @@ steps:
     {
       $releaseNotes += ($value = "Script: {0} SHA256: {1}%0D%0A" -f $key, $assets[$key].Hash)
       Write-Host("$value")
-      $filepath = $assets[$key].FileName
+      $filepath = $assets[$key].FilePath
       Write-Host("$filepath")
       $assetFiles += $filepath
     }
@@ -66,6 +66,6 @@ steps:
     tag: $(ReleaseTagValue)
     title: $(ReleaseTitleValue)
     releaseNotesSource: 'input'
-    releaseNotes: $(ReleaseNotes)
+    releaseNotes: ($(ReleaseNotes).Split("%0D%0A"))
     addChangeLog: true
     assets: $(Assets)
