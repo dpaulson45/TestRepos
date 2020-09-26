@@ -40,7 +40,7 @@ steps:
 
     foreach($key in $assets.Keys)
     {
-      $releaseNotes += ($value = "Script: {0} SHA256: {1}\r\n" -f $key, $assets[$key].Hash)
+      $releaseNotes += ($value = "Script: {0} SHA256: {1}%0D%0A" -f $key, $assets[$key].Hash)
       Write-Host("$value")
       $filepath = $assets[$key].FileName
       Write-Host("$filepath")
