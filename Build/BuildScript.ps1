@@ -1,5 +1,5 @@
 $excludeList = @("Update-FunctionToScript.ps1","Test-Script.ps1","New-FunctionTemplate.ps1")
-$assets = Get-ChildItem ..\Scripts -Recurse | ?{($_.Name.ToString().EndsWith(".ps1") -or $_.Name.ToString().EndsWith(".config")) -and (!$excludeList.Contains($_.Name.ToString()))}
+$assets = Get-ChildItem .\Scripts -Recurse | ?{($_.Name.ToString().EndsWith(".ps1") -or $_.Name.ToString().EndsWith(".config")) -and (!$excludeList.Contains($_.Name.ToString()))}
 
 $returnHash = @{}
 foreach($file in $assets)
