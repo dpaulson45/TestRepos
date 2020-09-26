@@ -59,10 +59,7 @@ steps:
     Write-Host("Release Notes From File:")
     Get-Content .\Build\ReleaseNotes.txt
     Write-Host("Asset File:")
-    Get-Content .\Build\Assets.txt
-    $assetContent = Get-Content .\Build\Assets.txt
     Write-Host "##vso[task.setvariable variable=Assets]$assetFiles"
-    "##vso[task.setvariable variable=AssetsContent]$assetContent"
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
   displayName: "Setting Release Notes and Assets"
 
