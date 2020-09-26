@@ -40,16 +40,20 @@ steps:
 
     foreach($key in $assets.Keys)
     {
-      $releaseNotes += ($value = "Script: {0} SHA256: {1}%0D%0A" -f $key, $assets[$key].Hash)
+      $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
+      $value | Out-File .\Build\ReleaseNotes.txt -Append
       Write-Host("$value")
       $filepath = $assets[$key].FilePath
       Write-Host("$filepath")
       $assetFiles += $filepath
     }
+    $releaseNotes = $releaseNotes.Split("%0D%0A")
     Write-Host("Release Notes:")
     Write-Host("$releaseNotes")
     Write-Host("Asset Files")
     Write-Host("$assetFiles")
+    Write-Host("Release Notes From File:")
+    Get-Content .\Build\ReleaseNotes.txt
     Write-Host "##vso[task.setvariable variable=Assets]$assetFiles"
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
   displayName: "Setting Release Notes and Assets"
@@ -65,7 +69,7 @@ steps:
     tagPattern: 'v[0-9].[0-9].[0-9]'
     tag: $(ReleaseTagValue)
     title: $(ReleaseTitleValue)
-    releaseNotesSource: 'input'
-    releaseNotes: ($(ReleaseNotes).Split("%0D%0A"))
+    releaseNotesSource: 'file'
+    releaseNotesFile: .\Build\ReleaseNotes.txt
     addChangeLog: true
     assets: $(Assets)
