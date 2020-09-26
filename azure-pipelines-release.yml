@@ -49,7 +49,7 @@ steps:
       Write-Host("$value")
       $filepath = $assets[$key].FilePath
       Write-Host("$filepath")
-      $filePath | Out-File .\Build\Assets.txt -Append
+      cp $filePath $env:BUILD_ARTIFACTSTAGINGDIRECTORY
     }
     $releaseNotes = $releaseNotes.Split("%0D%0A")
     Write-Host("Release Notes:")
@@ -59,10 +59,7 @@ steps:
     Write-Host("Release Notes From File:")
     Get-Content .\Build\ReleaseNotes.txt
     Write-Host("Asset File:")
-    Get-Content .\Build\Assets.txt
-    $assetContent = Get-Content .\Build\Assets.txt
     Write-Host "##vso[task.setvariable variable=Assets]$assetFiles"
-    "##vso[task.setvariable variable=AssetsContent]$assetContent"
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
   displayName: "Setting Release Notes and Assets"
 
@@ -80,4 +77,4 @@ steps:
     releaseNotesSource: 'file'
     releaseNotesFile: .\Build\ReleaseNotes.txt
     addChangeLog: true
-    assets: $(AssetsContent)
+    assets: $(Build.ArtifactStagingDirectory)
