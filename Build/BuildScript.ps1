@@ -8,6 +8,7 @@ foreach($file in $assets)
     $obj = New-Object PSCustomObject
     $obj | Add-Member -MemberType NoteProperty -Name "FileName" -Value $file.Name
     $obj | Add-Member -MemberType NoteProperty -Name "Hash" -Value $hashValue
+    $obj | Add-Member -MemberType NoteProperty -Name "FilePath" -Value $file.VersionInfo.FileName
 
     $returnHash.Add($file.Name, $obj)
 }
