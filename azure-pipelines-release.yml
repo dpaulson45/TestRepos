@@ -13,11 +13,11 @@ pool:
   vmImage: 'windows-2019'
 
 steps: 
-- powershell: |
-    $myHashValue = (Get-FileHash -Algorithm SHA256 "TestScript.ps1").Hash
-    Write-Host "##vso[task.setvariable variable=ScriptFileHash]$myHashValue"
+- pwsh: | 
+    $assets = .\Build\BuildScript.ps1 
+    Write-Host "##vso[task.setvariable variable=AssetInfo]$assets"
 
-  displayName: "Setting file hash"
+  displayName: "Getting Assets"
 
 - pwsh: | 
     $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
@@ -38,13 +38,17 @@ steps:
   
   displayName: "Setting Release Title"
 
-- pwsh: | 
+- pwsh: |
+    $releaseNotes = @()
+    $assets = "$(AssetInfo)"
 
-    $value = "$(ReleaseTagValue)"
-    Write-Host("Testing tag value: {0}" -f $value)
-    $value = "$(ReleaseTitleValue)"
-    Write-Host("Testing Release Title: {0}" -f $value)
-  displayName: "testing tag value"
+    foreach($key in $assets.Keys)
+    {
+      $releaseNotes += "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash
+    }
+    Write-Host($releaseNotes)
+    Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
+  displayName: "Setting Release Notes"
 
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
@@ -58,9 +62,7 @@ steps:
     tag: $(ReleaseTagValue)
     title: $(ReleaseTitleValue)
     releaseNotesSource: 'input'
-    releaseNotes: "SHA256: $(ScriptFileHash) <br>
-
-    How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value"
+    releaseNotes: $(ReleaseNotes)
     addChangeLog: true
     assets: |
       .\Test-Script\TestScript.ps1
