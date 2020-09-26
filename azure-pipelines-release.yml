@@ -40,7 +40,7 @@ steps:
 
 - pwsh: |
     $releaseNotes = @()
-    [hashtable]$assets = $(AssetInfo)
+    [hashtable]$assets = $[AssetInfo]
 
     foreach($key in $assets.Keys)
     {
