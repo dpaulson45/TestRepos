@@ -16,9 +16,10 @@ steps:
 - pwsh: | 
     $assets = .\Build\BuildScript.ps1 
     Write-Host "##vso[task.setvariable variable=AssetInfo]$assets"
+
   displayName: "Getting Assets"
 
-  - pwsh: | 
+- pwsh: | 
     $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
     $json = ConvertFrom-Json -InputObject $webRequest.Content
     $tagString = $json[0].tag_name
@@ -39,12 +40,13 @@ steps:
 
 - pwsh: |
     $releaseNotes = @()
-    $assets = $(AssetInfo)
+    $assets = "$(AssetInfo)"
 
     foreach($key in $assets.Keys)
     {
       $releaseNotes += "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash
     }
+    Write-Host($releaseNotes)
     Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
   displayName: "Setting Release Notes"
 
