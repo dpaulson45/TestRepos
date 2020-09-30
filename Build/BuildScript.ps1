@@ -12,5 +12,5 @@ foreach($file in $assets)
 
     $returnHash.Add($file.Name, $obj)
 }
-
+#Test Change
 return $returnHash
