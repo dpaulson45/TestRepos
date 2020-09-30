@@ -1,0 +1,85 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: Demo Azure Pipelines
+trigger:
+  branches:
+    include:
+      - master
+      - release
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+- pwsh: | 
+    $webRequest = Invoke-WebRequest https://api.github.com/repos/dpaulson45/TestRepos/releases
+    $json = ConvertFrom-Json -InputObject $webRequest.Content
+    $tagString = $json[0].tag_name
+    Write-Host("Current tag: {0}" -f $tagString)
+    $split = $tagString.Split(".")
+    $tag = "v1.{0}.{1}" -f $split[-2], (++([double]$split[-1]))
+    Write-Host("New tag: {0}" -f $tag)
+    Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
+
+  displayName: "Setting Tag Value"
+
+- pwsh: |
+    $value = "$(ReleaseTagValue)"
+    $title = "{0} Release" -f $value
+    Write-Host "##vso[task.setvariable variable=ReleaseTitleValue]$title"
+  
+  displayName: "Setting Release Title"
+
+- pwsh: |
+    $releaseNotes = @()
+    $assets = .\Build\BuildScript.ps1 
+
+    $assetFiles = @()
+
+    foreach($key in $assets.Keys)
+    {
+      $value = "Script: {0}" -f $key
+      $value | Out-File .\Build\ReleaseNotes.txt -Append
+      $value = "SHA256: {0}" -f $assets[$key].Hash
+      $value | Out-File .\Build\ReleaseNotes.txt -Append
+      $releaseNotes += ($value = "Script: {0} SHA256: {1}" -f $key, $assets[$key].Hash)
+      "" | Out-File .\Build\ReleaseNotes.txt -Append
+      Write-Host("$value")
+      $filepath = $assets[$key].FilePath
+      Write-Host("$filepath")
+      cp $filePath $env:BUILD_ARTIFACTSTAGINGDIRECTORY
+    }
+    $releaseNotes = $releaseNotes.Split("%0D%0A")
+    Write-Host("Release Notes:")
+    Write-Host("$releaseNotes")
+    Write-Host("Asset Files")
+    Write-Host("$assetFiles")
+    Write-Host("Release Notes From File:")
+    Get-Content .\Build\ReleaseNotes.txt
+    Write-Host("Asset File:")
+    Write-Host "##vso[task.setvariable variable=Assets]$assetFiles"
+    Write-Host "##vso[task.setvariable variable=ReleaseNotes]$releaseNotes"
+  displayName: "Setting Release Notes and Assets"
+
+- pwsh: | 
+    Get-ChildItem "$(Build.ArtifactStagingDirectory)"
+  displayName: "Testing"
+
+- task: GitHubRelease@0
+  displayName: 'Create GitHub Release'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
+  inputs:
+    gitHubConnection: github.com_dpaulson45
+    repositoryName: dpaulson45/TestRepos
+    action: create
+    tagSource: manual
+    tagPattern: 'v[0-9].[0-9].[0-9]'
+    tag: $(ReleaseTagValue)
+    title: $(ReleaseTitleValue)
+    releaseNotesSource: 'file'
+    releaseNotesFile: .\Build\ReleaseNotes.txt
+    addChangeLog: true
+    assets: $(Build.ArtifactStagingDirectory)\*
