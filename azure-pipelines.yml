@@ -71,7 +71,7 @@ steps:
   displayName: "Setting Release Title"
 
 - pwsh: |
-    $scriptLocation = "$($BuildScriptLocation)"
+    $scriptLocation = "$(BuildScriptLocation)"
     Write-Host("$scriptLocation")
     $hashValue = (Get-FileHash $scriptLocation -Algorithm SHA256).Hash
     
