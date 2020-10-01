@@ -45,7 +45,7 @@ steps:
 
     foreach($line in $scriptContent)
     {
-      if($line.StartsWith("$healthCheckerVersion = "))
+      if($line -like "$healthCheckerVersion =*")
       {
         $line = "$healthCheckerVersion = {0}.{1}.{2}" -f $major, $minor, $buildRevision
       }
