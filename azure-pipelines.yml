@@ -52,7 +52,7 @@ steps:
       $updateScript.Add($line)
     }
 
-    $buildScriptLocation = "".\Build\HealthChecker.ps1"
+    $buildScriptLocation = ".\Build\HealthChecker.ps1"
 
     $updateScript | Out-File $buildScriptLocation
     
