@@ -47,6 +47,7 @@ steps:
     {
       if($line -like "$healthCheckerVersion =*")
       {
+        Write-Host("Line Hit")
         $line = "$healthCheckerVersion = {0}.{1}.{2}" -f $major, $minor, $buildRevision
       }
       $updateScript.Add($line)
