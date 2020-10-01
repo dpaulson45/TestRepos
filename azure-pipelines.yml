@@ -43,7 +43,7 @@ steps:
 
     $updateScript | Out-File $buildScriptLocation
     
-    $tag = "v{0}.{1}.{2}" -f $major, $minor, $buildRevision)
+    $tag = "v{0}.{1}.{2}" -f $major, $minor, $buildRevision
     Write-Host("New tag: {0}" -f $tag)
     Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
     Write-Host "##vso[task.setvariable variable=BuildScriptLocation]$buildScriptLocation"
