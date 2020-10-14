@@ -106,7 +106,7 @@ param(
 
 <#
 Note to self. "New Release Update" are functions that i need to update when a new release of Exchange is published
-Test
+Test Private
 #>
 
 $healthCheckerVersion = "2.44.2"
