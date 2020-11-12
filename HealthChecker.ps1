@@ -286,7 +286,6 @@ using System.Collections;
             public object PacketsReceivedDiscarded;   //hold all the packets received discarded on the server. 
             public double IPv6DisabledComponents;    //value stored in the registry HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters\DisabledComponents 
             public bool IPv6DisabledOnNICs;          //value that determines if we have IPv6 disabled on some NICs or not.
-            public System.Array NetworkAdaptersConfiguration;     //Stores the Win32_NetworkAdapterConfiguration for the server. 
             public System.Array NetworkAdapters;           //stores all the NICs on the servers. 
             public string PnPCapabilities;      //Value from PnPCapabilities registry
             public bool SleepyNicDisabled;     //If the NIC can be in power saver mode by the OS.
@@ -387,20 +386,8 @@ using System.Collections;
             Windows2012,
             Windows2012R2,
             Windows2016,
-            Windows2019
-        }
-    
-        public class NICInformation 
-        {
-            public string Description;  //Friendly name of the adapter 
-            public string LinkSpeed;    //speed of the adapter 
-            public System.DateTime DriverDate;   // date of the driver that is currently installed on the server 
-            public string DriverVersion; // version of the driver that we are on 
-            public string RSSEnabled;  //bool to determine if RSS is enabled 
-            public string Name;        //name of the adapter 
-            public object NICObject; //object to store the adapter info 
-            public bool IPv6Enabled; //Checks to see if we have an IPv6 address on the NIC 
-            public int MTUSize; //Size of the MTU on the network card. 
+            Windows2019,
+            WindowsCore
         }
     
         //enum for the dword value of the .NET frame 4 that we are on 
@@ -1574,6 +1561,8 @@ Function Get-ServerOperatingSystemVersion {
         "*Server 2012*" {$osReturnValue = "Windows2012"}
         "*Server 2016*" {$osReturnValue = "Windows2016"}
         "*Server 2019*" {$osReturnValue = "Windows2019"}
+        "Microsoft Windows Server Standard" {$osReturnValue = "WindowsCore"}
+        "Microsoft Windows Server Datacenter" {$osReturnValue = "WindowsCore"}
         default {$osReturnValue = "Unknown"}
     }
     
@@ -1613,7 +1602,7 @@ Function Get-AllNicInformation {
     [Parameter(Mandatory=$false)][string]$ComputerFQDN,
     [Parameter(Mandatory=$false)][scriptblock]$CatchActionFunction
     )
-    #Function Version 1.2
+    #Function Version 1.5
     <# 
     Required Functions: 
         https://raw.githubusercontent.com/dpaulson45/PublicPowerShellScripts/master/Functions/Write-VerboseWriters/Write-VerboseWriter.ps1
@@ -1622,7 +1611,6 @@ Function Get-AllNicInformation {
     #>
     Write-VerboseWriter("Calling: Get-AllNicInformation")
     Write-VerboseWriter("Passed [string]ComputerName: {0} | [string]ComputerFQDN: {1}" -f $ComputerName, $ComputerFQDN)
-    
     
     Function Get-NicPnpCapabilitiesSetting {
     [CmdletBinding()]
@@ -1680,7 +1668,7 @@ Function Get-AllNicInformation {
         {
             $currentErrors = $Error.Count
             $cimSession = New-CimSession -ComputerName $ComputerName -ErrorAction Stop
-            $networkIpConfiguration = Get-NetIPConfiguration -CimSession $CimSession -ErrorAction Stop | ?{$_.NetAdapter.MediaConnectionState -eq "Connected"}
+            $networkIpConfiguration = Get-NetIPConfiguration -CimSession $CimSession -ErrorAction Stop | Where-Object {$_.NetAdapter.MediaConnectionState -eq "Connected"}
     
             if ($CatchActionFunction -ne $null)
             {
@@ -1728,20 +1716,49 @@ Function Get-AllNicInformation {
             return $obj
         }
     
+        if ($WmiObject)
+        {
+            $networkAdapterConfigurations = Get-WmiObjectHandler -ComputerName $ComputerName -Class "Win32_NetworkAdapterConfiguration" -Filter "IPEnabled = True" -CatchActionFunction $CatchActionFunction
+        }
+    
         [array]$nicObjects = @()
         foreach($networkConfig in $NetworkConfigurations)
         {
+            $dnsClient = $null
+            $rssEnabledValue = 2
+            $netAdapterRss = $null
             if (!$WmiObject)
             {
+                Write-VerboseWriter("Working on NIC: {0}" -f $networkConfig.InterfaceDescription)
                 $adapter = $networkConfig.NetAdapter
                 $nicPnpCapabilitiesSetting = Get-NicPnpCapabilitiesSetting -NicAdapterComponentId $adapter.DeviceID
     
                 try
                 {
                     $dnsClient = $adapter | Get-DnsClient
+                    Write-VerboseWriter("Got DNS Client information")
                 }
                 catch
                 {
+                    Write-VerboseWriter("Failed to get the DNS Client information")
+                    if ($CatchActionFunction -ne $null)
+                    {
+                        & $CatchActionFunction
+                    }
+                }
+    
+                try
+                {
+                    $netAdapterRss = $adapter | Get-NetAdapterRss
+                    Write-VerboseWriter("Got Net Adapter RSS information")
+                    if ($netAdapterRss -ne $null)
+                    {
+                        [int]$rssEnabledValue = $netAdapterRss.Enabled
+                    }
+                }
+                catch
+                {
+                    Write-VerboseWriter("Failed to get RSS Information")
                     if ($CatchActionFunction -ne $null)
                     {
                         & $CatchActionFunction
@@ -1750,6 +1767,7 @@ Function Get-AllNicInformation {
             }
             else
             {
+                Write-VerboseWriter("Working on NIC: {0}" -f $networkConfig.Description)
                 $adapter = $networkConfig
                 $nicPnpCapabilitiesSetting = Get-NicPnpCapabilitiesSetting -NicAdapterComponentId $adapter.Guid
             }
@@ -1760,6 +1778,8 @@ Function Get-AllNicInformation {
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "LinkSpeed" -Value ((($adapter.Speed)/1000000).ToString() + " Mbps")
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "DriverDate" -Value [DateTime]::MaxValue
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "NICObject" -Value $networkConfig
+            $nicInformationObj | Add-Member -MemberType NoteProperty -Name "NetAdapterRss" -Value $netAdapterRss
+            $nicInformationObj | Add-Member -MemberType NoteProperty -Name "RssEnabledValue" -Value $rssEnabledValue
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "IPv6Enabled" -Value $false
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "Description" -Value $adapter.Description
             $nicInformationObj | Add-Member -MemberType NoteProperty -Name "DriverVersion" -Value [string]::Empty
@@ -1773,7 +1793,15 @@ Function Get-AllNicInformation {
                 $nicInformationObj.DriverDate = $adapter.DriverDate
                 $nicInformationObj.DriverVersion = $adapter.DriverVersionString
                 $nicInformationObj.Description = $adapter.InterfaceDescription
-                
+    
+                foreach ($ipAddress in $networkConfig.AllIPAddresses.IPAddress)
+                {
+                    if ($ipAddress.Contains(":"))
+                    {
+                        $nicInformationObj.IPv6Enabled = $true
+                    }
+                }
+    
                 $ipv4Address = @()
                 for ($i = 0; $i -lt $networkConfig.IPv4Address.Count; $i++)
                 {
@@ -1821,6 +1849,32 @@ Function Get-AllNicInformation {
                 $nicInformationObj | Add-Member -MemberType NoteProperty -Name "RegisteredInDns" -Value $dnsClient.RegisterThisConnectionsAddress
                 $nicInformationObj | Add-Member -MemberType NoteProperty -Name "DnsServer" -Value $networkConfig.DNSServer.ServerAddresses
                 $nicInformationObj | Add-Member -MemberType NoteProperty -Name "DnsClientObject" -Value $dnsClient
+            }
+            else 
+            {
+                $stopProcess = $false
+                foreach ($adapterConfiguration in $networkAdapterConfigurations)
+                {
+                    Write-VerboseWriter("Working on '{0}' | SettingID: {1}" -f $adapterConfiguration.Description, ($settingId = $adapterConfiguration.SettingID))
+                    if ($settingId -eq $networkConfig.GUID -or
+                        $settingId -eq $networkConfig.InterfaceGuid)
+                    {
+                        foreach ($ipAddress in $adapterConfiguration.IPAddress)
+                        {
+                            if ($ipAddress.Contains(":"))
+                            {
+                                $nicInformationObj.IPv6Enabled = $true
+                                $stopProcess = $true
+                                break
+                            }
+                        }
+                    }
+    
+                    if ($stopProcess)
+                    {
+                        break
+                    }
+                }
             }
     
             $nicObjects += $nicInformationObj 
@@ -1878,7 +1932,6 @@ Function Get-HttpProxySetting {
 	$httpProxy32 = [String]::Empty
 	$httpProxy64 = [String]::Empty
 	Write-VerboseOutput("Calling: Get-HttpProxySetting")
-	Write-VerboseOutput("Passed: {0}" -f $Machine_Name)
     
     Function Get-WinHttpSettings {
     param(
@@ -2277,37 +2330,13 @@ Function Get-OperatingSystemInformation {
     }
     $osInformation.PowerPlan.PowerPlan = $win32_PowerPlan 
     $osInformation.PageFile = Get-PageFileInformation
-    $osInformation.NetworkInformation.NetworkAdaptersConfiguration = Get-WmiObjectHandler -ComputerName $Script:Server -Class "Win32_NetworkAdapterConfiguration" -Filter "IPEnabled = True" -CatchActionFunction ${Function:Invoke-CatchActions}
     $osInformation.NetworkInformation.NetworkAdapters = (Get-AllNicInformation -ComputerName $Script:Server -CatchActionFunction ${Function:Invoke-CatchActions} -ComputerFQDN $Script:ServerFQDN)
-    foreach($adapter in $osInformation.NetworkInformation.NetworkAdaptersConfiguration)
+    foreach($adapter in $osInformation.NetworkInformation.NetworkAdapters)
     {
-        Write-VerboseOutput("Working on {0}" -f $adapter.Description)
-        $settingID = $adapter.SettingID
-        Write-VerboseOutput("SettingID: {0}" -f $settingID)
-        $IPv6Enabled = $false 
-        foreach($address in $adapter.IPAddress)
+        if (!$adapter.IPv6Enabled)
         {
-            if($address.Contains(":"))
-            {
-                Write-VerboseOutput("Determined IPv6 enabled")
-                $IPv6Enabled = $true 
-            }
-        }
-        Write-VerboseOutput("Going to try to find the Network Adapter that goes with this adapter configuration")
-        foreach($nicAdapter in $osInformation.NetworkInformation.NetworkAdapters)
-        {
-            $nicObject = $nicAdapter.NICObject
-            Write-VerboseOutput("Checking against '{0}'" -f $nicAdapter.Description)
-            Write-VerboseOutput("GUID: '{0}' InterfaceGUID: '{1}'" -f $nicObject.GUID, $nicObject.InterfaceGUID)
-            if($settingID -eq $nicObject.GUID -or $settingID -eq $nicObject.InterfaceGuid)
-            {
-                Write-VerboseOutput("Found setting the ipv6enabled: {0}" -f $IPv6Enabled)
-                $nicAdapter.IPv6Enabled = $IPv6Enabled 
-            }
-        }
-        if(!$IPv6Enabled)
-        {
-            $osInformation.NetworkInformation.IPv6DisabledOnNICs = $true 
+            $osInformation.NetworkInformation.IPv6DisabledOnNICs = $true
+            break
         }
     }
 
@@ -2784,23 +2813,27 @@ param(
     {
         $RegLocation = "SOFTWARE\Microsoft\Updates\Exchange 2013"
     }
-    else 
+    elseif([HealthChecker.ExchangeMajorVersion]::Exchange2016 -eq $ExchangeMajorVersion) 
     {
         $RegLocation = "SOFTWARE\Microsoft\Updates\Exchange 2016"
+    }
+    else 
+    {
+        $RegLocation = "SOFTWARE\Microsoft\Updates\Exchange 2019"
     }
 
     $RegKey = Invoke-RegistryGetValue -MachineName $Script:Server -SubKey $RegLocation -ReturnAfterOpenSubKey $true -CatchActionFunction ${Function:Invoke-CatchActions}
 
-    if($RegKey -ne $null)
+    if($null -ne $RegKey)
     {
         $IU = $RegKey.GetSubKeyNames()
-        if($IU -ne $null)
+        if($null -ne $IU)
         {
             Write-VerboseOutput("Detected fixes installed on the server")
             $fixes = @()
             foreach($key in $IU)
             {
-                $IUKey = $Reg.OpenSubKey($RegLocation + "\" + $key)
+                $IUKey = $RegKey.OpenSubKey($key)
                 $IUName = $IUKey.GetValue("PackageName")
                 Write-VerboseOutput("Found: " + $IUName)
                 $fixes += $IUName
@@ -4234,24 +4267,25 @@ param(
                 -AnalyzedInformation $analyzedResults
 
             $writeType = "Yellow"
-            $testingValue = [string]::Empty
+            $testingValue = $null
 
-            if ($adapter.RSSEnabled -eq "NoRSS")
+            if ($adapter.RssEnabledValue -eq 0)
             {
-                $detailsValue = "No RSS Feature Detected."
+                $detailsValue = "False --- Warning: Enabling RSS is recommended."
+                $testingValue = $false
             }
-            elseif ($adapter.RSSEnabled -eq "True")
+            elseif ($adapter.RssEnabledValue -eq 1)
             {
-                $detailsValue = "Enabled"
+                $detailsValue = "True"
+                $testingValue = $true
                 $writeType = "Green"
             }
             else
             {
-                $detailsValue = "Disabled --- Warning: Enabling RSS is recommended."
-                $testingValue = "Disabled"
+                $detailsValue = "No RSS Feature Detected."
             }
 
-            $analyzedResults = Add-AnalyzedResultInformation -Name "RSS" -Details $detailsValue `
+            $analyzedResults = Add-AnalyzedResultInformation -Name "RSS Enabled" -Details $detailsValue `
                 -DisplayGroupingKey $keyNICSettings `
                 -DisplayWriteType $writeType `
                 -DisplayTestingValue $testingValue `
@@ -4343,15 +4377,19 @@ param(
         #Assuming that all versions of Hyper-V doesn't allow sleepy NICs
         if ($hardwareInformation.ServerType -ne [HealthChecker.ServerType]::HyperV)
         {
-            $displayWriteType = "Yellow"
-            if ($adapter.SleepyNicDisabled)
+            $displayWriteType = "Grey"
+            $displayValue = $adapter.SleepyNicDisabled
+
+            if (!$adapter.SleepyNicDisabled)
             {
-                $displayWriteType = "Grey"
+                $displayWriteType = "Yellow"
+                $displayValue = "False --- Warning: It's recommended to disable NIC power saving options`r`n`t`t`tMore Information: http://support.microsoft.com/kb/2740020"
             }
 
-            $analyzedResults = Add-AnalyzedResultInformation -Name "Sleepy NIC Disabled" -Details $adapter.SleepyNicDisabled `
+            $analyzedResults = Add-AnalyzedResultInformation -Name "Sleepy NIC Disabled" -Details $displayValue `
                 -DisplayGroupingKey $keyNICSettings `
                 -DisplayWriteType $displayWriteType `
+                -DisplayTestingValue $adapter.SleepyNicDisabled `
                 -AnalyzedInformation $analyzedResults
         }
 
@@ -4780,6 +4818,7 @@ param(
             Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "1497.4" -CVENames "CVE-2019-1373"
             Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "1497.6" -CVENames "CVE-2020-0688","CVE-2020-0692"
             Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "1497.7" -CVENames "CVE-2020-16969"
+            Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "1497.8" -CVENames "CVE-2020-17083","CVE-2020-17084","CVE-2020-17085"
         }
     }
     elseif ($exchangeInformation.BuildInformation.MajorVersion -eq [HealthChecker.ExchangeMajorVersion]::Exchange2016)
@@ -4829,6 +4868,7 @@ param(
         if ($exchangeCU -le [HealthChecker.ExchangeCULevel]::CU18)
         {
             Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "2044.7","2106.3" -CVENames "CVE-2020-16969"
+            Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "2044.8","2106.4" -CVENames "CVE-2020-17083","CVE-2020-17084","CVE-2020-17085"
         }
     }
     elseif ($exchangeInformation.BuildInformation.MajorVersion -eq [HealthChecker.ExchangeMajorVersion]::Exchange2019)
@@ -4861,6 +4901,7 @@ param(
         if ($exchangeCU -le [HealthChecker.ExchangeCULevel]::CU7)
         {
             Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "659.7","721.3" -CVENames "CVE-2020-16969"
+            Test-VulnerabilitiesByBuildNumbersForDisplay -ExchangeBuildRevision $buildRevision -SecurityFixedBuilds "659.8","721.4" -CVENames "CVE-2020-17083","CVE-2020-17084","CVE-2020-17085"
         }
     }
     else
@@ -5354,7 +5395,7 @@ Function Get-ErrorsThatOccurred {
             }
             Write-Grey(" "); Write-Grey(" ")
             "Errors that were handled" | Out-File ($Script:OutputFullPath) -Append
-            $Script:Logger.WriteToFileOnly("`r`n`r`nErrors that occurred that wasn't handled")
+            $Script:Logger.WriteToFileOnly("`r`n`r`nErrors that were handled")
             foreach($okayErrors in $Script:ErrorsExcluded)
             {
                 $okayErrors | Out-File ($Script:OutputFullPath) -Append
@@ -5431,8 +5472,9 @@ Function Main {
         (-not $AnalyzeDataOnly -and
         -not $BuildHtmlServersReport))
 	{
-		Write-Warning "The script needs to be executed in elevated mode. Start the Exchange Management Shell as an Administrator." 
-		sleep 2;
+        Write-Warning "The script needs to be executed in elevated mode. Start the Exchange Management Shell as an Administrator."
+        $Script:ErrorStartCount = $Error.Count
+		Start-Sleep -Seconds 2;
 		exit
     }
 
