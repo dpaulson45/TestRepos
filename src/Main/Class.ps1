@@ -380,7 +380,7 @@ try{
                 public Hashtable DisplayResults = new Hashtable();
             }
         }
-    "@ -ErrorAction Stop 
+"@ -ErrorAction Stop 
     }
     catch 
     {
