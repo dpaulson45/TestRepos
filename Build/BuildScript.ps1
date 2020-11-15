@@ -1,8 +1,19 @@
+param(
+[object]$ScriptVersion
+)
+
+if ($null -eq $ScriptVersion)
+{
+    $ScriptVersion = .\GetScriptVersion.ps1
+}
+
 $loadJson = Get-Content .\BuildScript.config.json
 $config = $loadJson | ConvertFrom-Json | Sort-Object LoadOrder
 
 [System.Collections.Generic.List[System.Object]]$healthChecker = New-Object -TypeName System.Collections.Generic.List[System.Object]
 [System.Collections.Generic.List[System.Object]]$loadedFiles = New-Object -TypeName System.Collections.Generic.List[System.Object]
+
+$scriptVersionAdded = $false
 
 foreach ($configItem in $config)
 {
@@ -37,6 +48,12 @@ foreach ($configItem in $config)
         foreach($line in $getContent)
         {
             $healthChecker.Add($line)
+        }
+
+        if (!$scriptVersionAdded)
+        {
+            $healthChecker.Add(("`$healthCheckerVersion = `"{0}.{1}.{2}`"" -f $ScriptVersion.Major, $ScriptVersion.Minor, $ScriptVersion.BuildRevision))
+            $scriptVersionAdded = $true
         }
 
         $loadedFiles.Add($file)

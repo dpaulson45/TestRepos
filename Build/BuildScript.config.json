@@ -4,6 +4,10 @@
     "Path": "..\\src\\Main\\Start.ps1"
   },
   {
+    "LoadOrder": 0.5,
+    "Path": "..\\src\\Main\\ScriptLocals.ps1"
+  },
+  {
     "LoadOrder": 1,
     "Path": "..\\src\\Main\\Class.ps1"
   },
