@@ -74,6 +74,6 @@ steps:
     tag: $(ReleaseTagValue)
     title: $(ReleaseTitleValue)
     releaseNotesSource: 'file'
-    releaseNotesFile: .\Build\ReleaseNotes.txt
+    releaseNotesFile: .\Build\ScriptVersions.txt
     addChangeLog: true
     assets: $(Build.ArtifactStagingDirectory)\*
