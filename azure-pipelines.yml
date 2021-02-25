@@ -44,10 +44,10 @@ steps:
     repositoryName: dpaulson45/TestRepos
     action: create
     tagSource: manual
-    tagPattern: 'v[0-9].[0-9].[0-9]'
+    tagPattern: 'v[0-9].[0-9].[0-9].[0-9]'
     tag: $(ReleaseTagValue)
-    title: $(ReleaseTitleValue)
+    title: $(ReleaseTagValue)
     releaseNotesSource: 'file'
-    releaseNotesFile: .\Build\ScriptVersions.txt
+    releaseNotesFile: dist\ScriptVersions.txt
     addChangeLog: true
     assets: $(Build.ArtifactStagingDirectory)\*
