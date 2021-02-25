@@ -5,7 +5,7 @@ Function Invoke-CatchActions{
     
         Write-VerboseOutput("Calling: Invoke-CatchActions")
         $Script:ErrorsExcludedCount++
-        if($CopyThisError -eq $null)
+        if($null -eq $CopyThisError)
         {
             $Script:ErrorsExcluded += $Error[0]
         }
