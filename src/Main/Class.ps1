@@ -387,4 +387,3 @@ try{
         Write-Warning "There was an error trying to add custom classes to the current PowerShell session. You need to close this session and open a new one to have the script properly work."
         exit 
     }
-    
