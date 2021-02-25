@@ -14,53 +14,27 @@ pool:
   vmImage: 'windows-2019'
 
 steps:
-- pwsh: | 
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
 
-    cd .\Build
+- pwsh: |
+    cd .\.build
+    .\CodeFormatter.ps1
+  displayName: "Code Formatting Script"
 
-    $scriptVersion = .\GetScriptVersion.ps1
+- pwsh: |
+    cd .\.build
+    .\Build.ps1
+  displayName: "Build Script"
 
-    .\BuildScript.ps1 $scriptVersion
+- pwsh: |
+    Get-Content dist\ScriptVersions.txt
+  displayName: "Display Script Versions file"
 
-    $buildScriptLocation = ".\Build\HealthChecker.ps1"
-    
-    $tag = "v{0}.{1}.{2}" -f $scriptVersion.Major, $scriptVersion.Minor, $scriptVersion.BuildRevision
-    Write-Host("New tag: {0}" -f $tag)
+- pwsh: |
+    $tag = "v$((Get-Date).ToString(`"yy.MM.dd.HHmm`"))"
     Write-Host "##vso[task.setvariable variable=ReleaseTagValue]$tag"
-    Write-Host "##vso[task.setvariable variable=BuildScriptLocation]$buildScriptLocation"
 
-  displayName: "Setting Tag Value"
-
-- pwsh: |
-    $value = "$(ReleaseTagValue)"
-    $title = "{0} Release" -f $value
-    Write-Host "##vso[task.setvariable variable=ReleaseTitleValue]$title"
-  
-  displayName: "Setting Release Title"
-
-- pwsh: |
-    $scriptLocation = "$(BuildScriptLocation)"
-    Write-Host("$scriptLocation")
-    $hashValue = (Get-FileHash $scriptLocation -Algorithm SHA256).Hash
-    
-    $releaseInfo = @"
-
-    SHA256: {0}
-
-    How to Verify Hash Value: https://github.com/dpaulson45/HealthChecker/wiki/How-to-Verify-Hash-Value
-    "@ -f $hashValue 
-
-    Write-Host("$releaseInfo")
-    $releaseInfo | Out-File .\Build\ReleaseNotes.txt
-
-    cp $scriptLocation $env:BUILD_ARTIFACTSTAGINGDIRECTORY
-
-  displayName: "Setting Release Notes and Assets"
-
-- pwsh: | 
-    Get-ChildItem "$(Build.ArtifactStagingDirectory)"
-    Get-Content .\Build\ReleaseNotes.txt
-  displayName: "Testing"
 
 - task: GitHubRelease@0
   displayName: 'Create GitHub Release'
