@@ -50,4 +50,4 @@ steps:
     releaseNotesSource: 'file'
     releaseNotesFile: dist\ScriptVersions.txt
     addChangeLog: true
-    assets: $(Build.ArtifactStagingDirectory)\*
+    assets: dist\*.ps1
