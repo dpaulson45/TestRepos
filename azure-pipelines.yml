@@ -50,4 +50,6 @@ steps:
     releaseNotesSource: 'file'
     releaseNotesFile: dist\ScriptVersions.txt
     addChangeLog: true
-    assets: dist\*.ps1
+    assets: |
+      dist\*.ps1
+      dist\*.nse
