@@ -62,7 +62,5 @@ steps:
     gitHubConnection: github.com_dpaulson45
     repositoryName: dpaulson45/TestRepos
     action: edit
-    tagSource: manual
     tag: $(ReleaseTagValue)
-    title: $(ReleaseTagValue)
     isDraft: false
