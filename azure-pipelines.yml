@@ -37,7 +37,7 @@ steps:
 
 
 - task: GitHubRelease@0
-  displayName: 'Create GitHub Release'
+  displayName: 'Create GitHub Release - Draft'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
   inputs:
     gitHubConnection: github.com_dpaulson45
@@ -53,3 +53,16 @@ steps:
     assets: |
       dist\*.ps1
       dist\*.nse
+    isDraft: true
+
+- task: GitHubRelease@0
+  displayName: 'Create GitHub Release - Release'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
+  inputs:
+    gitHubConnection: github.com_dpaulson45
+    repositoryName: dpaulson45/TestRepos
+    action: edit
+    tagSource: manual
+    tag: $(ReleaseTagValue)
+    title: $(ReleaseTagValue)
+    isDraft: false
