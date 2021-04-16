@@ -55,7 +55,7 @@ steps:
       dist\*.nse
     isDraft: true
 
-  - task: GitHubRelease@0
+- task: GitHubRelease@0
   displayName: 'Create GitHub Release - Release'
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/release'))
   inputs:
